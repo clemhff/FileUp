@@ -19,8 +19,8 @@ app.use(function(req, res, next) {
 
 app.use(bodyParser.json())
 
-//app.use(env.appRootUrl + '/public', express.static(__dirname + '/react_dir/build/public'));
-//app.use(env.appRootUrl + '/static', express.static(__dirname + '/react_dir/build/static')); // put an environnement variable for '/reactdev'
+app.use(env.appRootUrl + '/public', express.static(__dirname + '/react_dir/build/public'));
+app.use(env.appRootUrl + '/static', express.static(__dirname + '/react_dir/build/static')); // put an environnement variable for '/reactdev'
 //console.log(__dirname + + '/react_dir/build/public');
 
 // Connect to the database before starting the application server.
@@ -46,8 +46,7 @@ db.connectDb( function( err, client ) {
 //resume (app);
 //CRUD_Quotes (app);
 
-/*app.get(env.appRootUrl + '*', function(req, res) {
+app.get(env.appRootUrl + '*', function(req, res) {
     console.log(path.join(__dirname, '/react_dir/build/index.html'));
     res.sendFile('index.html', {root : __dirname + '/react_dir/build'});
-  });
-*/
+});
