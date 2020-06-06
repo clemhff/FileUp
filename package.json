@@ -1,0 +1,19 @@
+{
+  "name": "fileup",
+  "version": "1.0.0",
+  "description": "App to upload and download files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clemhff/FileUp.git"
+  },
+  "author": "Clément Hoff",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clemhff/FileUp/issues"
+  },
+  "homepage": "https://github.com/clemhff/FileUp#readme"
+}
