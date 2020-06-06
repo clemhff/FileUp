@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/clemhff/FileUp/issues"
   },
-  "homepage": "https://github.com/clemhff/FileUp#readme"
+  "homepage": "https://github.com/clemhff/FileUp#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.8",
+    "path": "^0.12.7"
+  }
 }
