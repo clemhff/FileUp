@@ -7,4 +7,7 @@
 # config environnement
 /config
 
+# uploads folder
+/uploads
+
 npm-debug.log*
