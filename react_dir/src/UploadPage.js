@@ -17,13 +17,32 @@ class UploadPage extends Component {
     this.state ={
       file:null,
       uploadPercentage: null,
-      addFile:false
+      addFile:false,
+      dataListFiles: []
     }
   }
+
+  //API call
+  componentDidMount() {
+      fetch(process.env.REACT_APP_API_URL + '/lastentries')
+        .then(response => response.json())
+        .then(data => {
+          data.map( x => {
+            x.fileCardState = 'ok'; // ok modify delete
+            return x
+          })
+          //console.log(JSON.stringify(data));
+          return data;
+
+        })
+        .then(data => this.setState({ dataListFiles : data }))
+      ;
+   }
 
   onFormSubmit(e){
     e.preventDefault() // Stop form submit
     const data = new FormData();
+    const myFile = this.state.dataListFiles.slice();
     data.append("file", this.state.file);
     //data.append("file", this.state.file);
     console.log(...data);
@@ -42,10 +61,14 @@ class UploadPage extends Component {
     }
 
     axios.post("http://localhost:8090/file", data, options).then(res => {
-        console.log(res)
+        //console.log(res)
         this.setState({uploadPercentage: 100 }, ()=>{
         setTimeout(() => {
-            this.setState({ addFile:false, uploadPercentage: null })
+            console.log('first is' + JSON.stringify(myFile));
+            myFile.unshift(res.data);
+            console.log('second is' +  JSON.stringify(myFile));
+
+            this.setState({ dataListFiles : myFile, addFile:false, uploadPercentage: null });
           }, 1000);
         })
     });
@@ -68,6 +91,20 @@ class UploadPage extends Component {
 
 
   render () {
+
+    let divFiles = this.state.dataListFiles.map((el, index) => {
+
+         return (
+           <ListFiles
+            key={index}
+            num = {index}
+            data = {this.state.dataListFiles[index]}
+           />
+         );
+
+    })
+
+
     return (
       <div>
         <UploadForm
@@ -77,9 +114,7 @@ class UploadPage extends Component {
           onChange = {(e) => this.onChange(e)}
           addAFile = {() => this.addAFile()}
         />
-        <ListFiles
-
-        />
+        {divFiles}
       </div>
     );
   }
