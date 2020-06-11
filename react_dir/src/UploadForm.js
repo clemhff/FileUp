@@ -1,85 +1,42 @@
-import React, {Component} from 'react';
-import axios from 'axios';
-//import './css/AddQuote.css';
-
-class UploadForm extends Component {
-
-  /*handleChange = (e) => {
-    return null
-  }*/
-
-  constructor(props) {
-    super(props);
-    this.state ={
-      file:null,
-      files: null,
-      uploadPercentage: null
-    }
-  }
-
-  onFormSubmit(e){
-    e.preventDefault() // Stop form submit
-    const data = new FormData();
-    data.append("file", this.state.file);
-    data.append("file", this.state.file);
-    console.log(...data);
+import React from 'react';
 
 
-    const options = {
-      onUploadProgress: (progressEvent) => {
-        const {loaded, total} = progressEvent;
-        let percent = Math.floor( (loaded * 100) / total )
-        console.log( `${loaded}kb of ${total}kb | ${percent}%` );
+function UploadForm(props) {
 
-        if( percent < 100 ){
-          this.setState({ uploadPercentage: percent })
-        }
-      }
+  const progress = () => {
+    if (props.uploadPercentage ){
+      return (
+        <progress id="file" value={props.uploadPercentage} max="100"> {props.uploadPercentage}% </progress>
+      )
     }
 
-    axios.post("http://localhost:8090/stats", data, options).then(res => {
-        console.log(res)
-        this.setState({uploadPercentage: 100 }, ()=>{
-        setTimeout(() => {
-            this.setState({ uploadPercentage: 0 })
-          }, 1000);
-        })
-    });
-    /*fetch('http://localhost:8090/stats', {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        body: data
-    })
-    .then(response => response.text())
-    .then(res => console.log(res));*/
-
+    return(
+      null
+    )
   }
 
-  onChange(e) {
-    /*const data = new FormData();
-    data.append('inputfile', e.target.files[0]);
-    console.log(data.get('inputname'));
-    this.setState({file:e.target.files[0]});*/
+  const form = () => {
+    if (props.addFile === true ){
+      return (
+        <form onSubmit={(e) => props.onFormSubmit(e)}>
+          <label for="uploadFile">Choose a file !</label>
+          <input style={{display: "none"}} id="uploadFile" type="file" onChange={(e) => props.onChange(e)} />
+          <button type="submit">Upload</button>
+          {progress()}
+        </form>
+      )
+    }
 
-    const files = e.target.files[0];
-    console.log(files);
-    this.setState({file: files})
+    return(
+      <button onClick={() => props.addAFile()}>Add</button>
+    )
   }
 
-
-
-  render () {
-    return (
-      <form onSubmit={(e) => this.onFormSubmit(e)}>
-        <h1>File Upload</h1>
-        <input type="file" onChange={(e) => this.onChange(e)} />
-        <button type="submit">Upload</button>
-        <progress id="file" value={this.state.uploadPercentage} max="100"> {this.state.uploadPercentage}% </progress>
-      </form>
-    );
-  }
-
+  return (
+    <div>
+      {form()}
+    </div>
+  );
 }
 
 export default UploadForm;

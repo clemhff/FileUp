@@ -1,12 +1,10 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
 
-import UploadForm from './UploadForm';
+import UploadPage from './UploadPage';
 
 function App() {
   return (
-    <UploadForm/>
+    <UploadPage/>
   );
 }
 

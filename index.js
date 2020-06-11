@@ -4,6 +4,7 @@ const mongodb = require("mongodb");
 const path = require('path');
 const bodyParser = require('body-parser');
 const multer  = require('multer');
+var fs = require('fs');
 
 var upload = multer({ dest: './uploads/' })
 
@@ -11,7 +12,7 @@ const env = require('./config/env'); // port and appRouteUrl
 const db = require( './functions/mongoUtil' ); // db connection module
 
 //const resume = require('./routes/resume'); // routes from resume.js
-//const CRUD_Quotes = require('./routes/CRUD_Quotes'); // routes from resume.js
+const RESTFiles = require('./routes/RESTFiles'); // routes from resume.js
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -45,18 +46,39 @@ db.connectDb( function( err, client ) {
 
 // URL routing
 //resume (app);
-//CRUD_Quotes (app);
+RESTFiles (app);
 
 
 app.post('/file', /*upload.single('file')*/ function (req, res) {
   //upload is multer
     upload.array('file')(req,res,function(err) {
-      console.log(req.file, req.body);
-      res.status(200).send({ msg: "Ok" });
+      console.log(JSON.stringify(req.files[0]));
+
+      db.use().collection('files').insertOne(req.files[0], function(err, doc) {
+        if (err) {
+          handleError(res, err.message, "Failed to create new citation.");
+        } else {
+          console.log(JSON.stringify(doc.ops[0]));
+          res.status(201).json(doc.ops[0]);
+        }
+      });
+
     });
    // req.file is the name of your file in the form above, here 'uploaded_file'
    // req.body will hold the text fields, if there were any
 
+});
+
+app.get('/download/:id', function (req, res) {
+  fs.readFile(__dirname + '/uploads/' + req.params.id, function (err,data) {
+    if (err) {
+      res.writeHead(404);
+      res.end(JSON.stringify(err));
+      return;
+    }
+    res.writeHead(200);
+    res.end(data);
+  });
 });
 
 app.get(env.appRootUrl + '*', function(req, res) {
