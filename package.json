@@ -17,8 +17,11 @@
   },
   "homepage": "https://github.com/clemhff/FileUp#readme",
   "dependencies": {
+    "argon2-ffi": "^1.2.0",
+    "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "express-jwt": "^5.3.3",
     "mongodb": "^3.5.8",
     "multer": "^1.4.2",
     "path": "^0.12.7"

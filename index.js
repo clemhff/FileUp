@@ -5,6 +5,9 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const multer  = require('multer');
 var fs = require('fs');
+const jwt = require('express-jwt');
+var argon2i = require('argon2-ffi').argon2i;
+var crypto = require('crypto');
 
 var upload = multer({ dest: './uploads/' })
 
@@ -13,6 +16,7 @@ const db = require( './functions/mongoUtil' ); // db connection module
 
 //const resume = require('./routes/resume'); // routes from resume.js
 const RESTFiles = require('./routes/RESTFiles'); // routes from resume.js
+const sign = require('./routes/sign'); // routes from sign.js
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -47,6 +51,7 @@ db.connectDb( function( err, client ) {
 // URL routing
 //resume (app);
 RESTFiles (app);
+sign(app);
 
 
 app.post('/file', /*upload.single('file')*/ function (req, res) {
