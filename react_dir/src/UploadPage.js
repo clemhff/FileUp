@@ -18,7 +18,9 @@ class UploadPage extends Component {
       file:null,
       uploadPercentage: null,
       addFile:false,
-      dataListFiles: []
+      dataListFiles: [],
+      formState: false,
+      formInput: []
     }
   }
 
@@ -76,18 +78,107 @@ class UploadPage extends Component {
   }
 
   onChange(e) {
-
     const files = e.target.files[0];
     console.log(files);
     this.setState({file: files})
   }
 
+  onModifyChange(cas, value) {
+    //console.log('index is ' + i);
+    //console.log('index is ' + e);
+    this.setState({ formState: true });
+     if (cas === 0){
+       const q = this.state.formInput.slice();
+       q[0]=value;;
+       this.setState({ formInput: q });
+     }
+     else if (cas === 1){
+       const q = this.state.formInput.slice();
+       q[1]=value;;
+       this.setState({ formInput: q });
+     }
+     else {
+       console.log('pas d\'input error');
+     }
+   }
+
+   onModifyValid(i) {
+     if(this.state.formState){
+        const temp = this.state.dataListFiles.slice();
+        temp[i].fileCardState ='ok';
+        if (this.state.formInput[1] !== null && this.state.formInput[1]){
+          temp[i].filename = this.state.formInput[1];
+        }
+        if (this.state.formInput[0] !== null && this.state.formInput[0]){
+          temp[i].originalname = this.state.formInput[0];
+        }
+        const obj = {
+            'originalname' : temp[i].originalname,
+            'filename' : temp[i].filename
+          }
+
+        fetch('http://localhost:8090/file/' + temp[i]["_id"] , {
+          method: 'PUT',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(obj)
+        })
+         //mettre un contrôle erreur API
+         .then (() => this.setState({ dataListFiles: temp, formInput: [], formState: false, addFile: false }));
+
+
+      }
+      else {
+        const temp = this.state.cards.slice();
+        temp[i].cardState ='ok';
+        console.log(JSON.stringify(temp[i].cardState));
+        this.setState({ cards: temp, formInput: [], formState: false, addFile: false });
+      }
+   }
+
+   onModifyCancel(i)  {
+     const temp = this.state.dataListFiles.slice();
+     temp[i].fileCardState ='ok';
+     this.setState({ dataListFiles: temp, formInput: [], formState: false });
+   }
+
 
   addAFile() {
-    this.setState({ addFile:true })
+    const listFiles = this.state.dataListFiles.slice();
+    listFiles.map( (x) => {
+       if (x.fileCardState === 'modify'){
+         x.fileCardState ='ok'
+       }
+       return x ;
+     });
+    this.setState({ dataListFiles : listFiles, addFile:true});
   }
 
+  deleteAFile(i, id) {
+    fetch('http://localhost:8090/file/' + id , {method: "DELETE"})
+    .then(response => response.text())
+    .then(res => {
+      const listFiles = this.state.dataListFiles.slice();
+      listFiles[i].fileCardState = 'delete'
+      this.setState({ dataListFiles : listFiles, addFile:false});
+    });
 
+  }
+
+  updateAFile(i) {
+    console.log('update ' + i)
+    const listFiles = this.state.dataListFiles.slice();
+    listFiles.map( (x) => {
+       if (x.fileCardState === 'modify'){
+         x.fileCardState ='ok'
+       }
+       return x ;
+     });
+    listFiles[i].fileCardState = 'modify';
+    this.setState({ dataListFiles : listFiles, addFile:false});
+  }
 
 
   render () {
@@ -99,6 +190,11 @@ class UploadPage extends Component {
             key={index}
             num = {index}
             data = {this.state.dataListFiles[index]}
+            deleteAFile = {(i, id) => this.deleteAFile(i, id)}
+            updateAFile = {(i) => this.updateAFile(i)}
+            onModifyChange = {(i, e) => this.onModifyChange(i, e)}
+            onModifyValid = {(i) => this.onModifyValid(i)}
+            onModifyCancel = {(i) => this.onModifyCancel(i)}
            />
          );
 
@@ -112,7 +208,7 @@ class UploadPage extends Component {
           addFile = {this.state.addFile}
           onFormSubmit = {(e) => this.onFormSubmit(e)}
           onChange = {(e) => this.onChange(e)}
-          addAFile = {() => this.addAFile()}
+          addAFile = {(id) => this.addAFile(id)}
         />
         {divFiles}
       </div>
