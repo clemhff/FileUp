@@ -1,5 +1,6 @@
 var argon2i = require('argon2-ffi').argon2i;
 var crypto = require('crypto');
+var jwt = require('./../functions/jwt_func');
 
 //const argon = require( './../functions/argon' );
 var db = require( './../functions/mongoUtil' ); // db connection module
@@ -48,7 +49,10 @@ module.exports = function(app) {
             console.log(correct ? 'Correct password!' : 'Incorrect password');
             var resp;
             correct ? resp = 'Correct password!' : resp = 'Incorrect password';
-            res.status(201).json({auth : resp});
+            var payload = {user: req.body.email};
+            var token = jwt.sign(payload);
+            var ver = jwt.verify(token);
+            res.status(201).send({auth: resp, token: token, ver: ver});
           });
         //res.status(201).json(result);
       });
