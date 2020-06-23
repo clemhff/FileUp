@@ -42,8 +42,10 @@ module.exports = function(app) {
 
 
     app.post("/signin", function(req, res) {
+      console.log(JSON.stringify(req.body));
       db.use().collection('users').find( { email: req.body.email } ).toArray(function(err, result) {
         if (err) throw err;
+        console.log(JSON.stringify(result));
         argon2i.verify(result[0].passwordHashed, req.body.password)
           .then(correct => {
             console.log(correct ? 'Correct password!' : 'Incorrect password');
