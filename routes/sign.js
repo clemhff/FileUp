@@ -31,6 +31,8 @@ module.exports = function(app) {
             } else {
               console.log(JSON.stringify(doc.ops[0]));
               delete newUser.passwordHashed;
+              delete newUser._id;
+              delete newUser.createdDate;
               res.status(201).json(newUser);
             }
           })
@@ -42,16 +44,17 @@ module.exports = function(app) {
 
 
     app.post("/signin", function(req, res) {
-      console.log(JSON.stringify(req.body));
+      //console.log(JSON.stringify(req.body));
       db.use().collection('users').find( { email: req.body.email } ).toArray(function(err, result) {
         if (err) throw err;
-        console.log(JSON.stringify(result));
+        //console.log('reeeeesuuuulltt ' + JSON.stringify(result));
         argon2i.verify(result[0].passwordHashed, req.body.password)
           .then(correct => {
             console.log(correct ? 'Correct password!' : 'Incorrect password');
             var resp;
             correct ? resp = 'Correct password!' : resp = 'Incorrect password';
-            var payload = {user: req.body.email};
+            var payload = {email: result[0].email, user: result[0].userName};
+            console.log('payload is ' + JSON.stringify(payload));
             var token = jwt.sign(payload);
             var ver = jwt.verify(token);
             res.status(201).send({auth: resp, token: token, ver: ver});

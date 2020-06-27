@@ -6,12 +6,12 @@ import Login from './Login';
 
 
 
-function App() {
+const App = () => {
 
 
 
   let mylog = () => {
-    if(!localStorage.mkt) {
+    if(!localStorage.mkt || localStorage.mkt === undefined) {
       return <Login/>;
     }
     else {

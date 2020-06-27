@@ -13,7 +13,7 @@ function SignUp(props) {
         <input id="user" type="text" onChange={(e) => props.onChange(e, 0)} />
         <label for="password">Password</label>
         <input id="password" type="text" onChange={(e) => props.onChange(e, 1)} />
-        <button type="submit">Log In</button>
+        <button type="submit">Sign up</button>
       </form>
     </div>
   );

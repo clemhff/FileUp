@@ -26,16 +26,35 @@ class UploadPage extends Component {
 
   //API call
   componentDidMount() {
-      fetch(process.env.REACT_APP_API_URL + '/lastentries')
+
+      let lToken = localStorage.mkt;
+      console.log(lToken);
+
+      fetch(process.env.REACT_APP_API_URL + '/list' ,
+      {
+        method: 'GET',
+        headers: {
+           'Authorization': 'Bearer ' + lToken,
+           'Accept': 'application/json',
+           'Content-Type': 'application/json'
+         }
+      })
         .then(response => response.json())
         .then(data => {
-          data.map( x => {
-            x.fileCardState = 'ok'; // ok modify delete
-            return x
-          })
-          //console.log(JSON.stringify(data));
-          return data;
-
+          console.log(data);
+          if (data.error ) { // if credentials are bad
+            data = [];
+            localStorage.removeItem('mkt');
+            return data;
+          }
+          else {
+            data.map( x => {
+              x.fileCardState = 'ok'; // ok modify delete
+              return x
+            })
+            //console.log(JSON.stringify(data));
+            return data;
+          }
         })
         .then(data => this.setState({ dataListFiles : data }))
       ;
@@ -59,6 +78,9 @@ class UploadPage extends Component {
         if( percent < 100 ){
           this.setState({ uploadPercentage: percent })
         }
+      },
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.mkt
       }
     }
 

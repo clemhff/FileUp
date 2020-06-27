@@ -26,6 +26,8 @@ class Login extends Component {
 
     e.preventDefault();
 
+
+
     let data = {
       "email" : this.state.email,
       "password" : this.state.password
@@ -99,6 +101,15 @@ class Login extends Component {
 
   }
 
+  signUpButton() {
+    this.setState({
+      email:null,
+      password: null,
+      userName: null,
+      type : 'signup'
+    });
+  }
+
 
 
   render () {
@@ -113,6 +124,7 @@ class Login extends Component {
               <label for="password">Password</label>
               <input id="password" type="text" onChange={(e) => this.onChange(e, 1)} />
               <button type="submit">Log In</button>
+              <button onClick={() => this.signUpButton()} >Sign up</button>
             </form>
           </div>
         );
