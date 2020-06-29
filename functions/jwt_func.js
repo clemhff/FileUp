@@ -19,7 +19,7 @@ module.exports = {
         //issuer:  $Options.issuer,
         //subject:  $Options.subject,
         //audience:  $Options.audience,
-        expiresIn:  "30d",    // 30 days validity
+        expiresIn:  "1d",    // 30 days validity
         algorithm:  "RS256"
     };
     return jwt.sign(payload, privateKEY, signOptions);
