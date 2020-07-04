@@ -4,16 +4,15 @@ var jwt = require('./../functions/jwt_func');
 
 module.exports = function(app) {
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//last files
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   app.get("/lastentries", function(req, res) {
 
     if (req.headers.authorization) {
-      let token = req.headers.authorization;
-      token = token.slice(7, token.length).trimLeft();
-
-      var vtoken = jwt.verify(token);
-      console.log('verif token lastentries = ' + JSON.stringify(vtoken));
-      //console.log('verif decode token lastentries = ' + JSON.stringify(jwt.decode(token)));
-
+      var vtoken = jwt.verify(req.headers.authorization.slice(7, req.headers.authorization.length).trimLeft());
       if(vtoken === false){
         res.status(200).json({error : 'bad credentials'});
       }
@@ -29,20 +28,13 @@ module.exports = function(app) {
             }
         });
       }
-
     }
-
-
   });
 
-
-
-
-
-
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////
   // GET File
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
   app.get("/file/:id", function(req, res) {
     db.use().collection('files').findOne({ _id: ObjectId(req.params.id) }, function(err, doc) {
       if (err) {
@@ -57,7 +49,11 @@ module.exports = function(app) {
     });
   });
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // PUT Quote
+  
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
   app.put("/file/:id", function(req, res) {
     var updateDoc = req.body;
     delete updateDoc._id;
@@ -75,132 +71,116 @@ module.exports = function(app) {
   });
 
 
-  // DELETE Quote
-  app.delete("/file/:id", function(req, res) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // DELETE File
 
-    if (req.headers.authorization) {
-      let token = req.headers.authorization;
-      token = token.slice(7, token.length).trimLeft();
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      var vtoken = jwt.verify(token);
-      console.log('verif token delete = ' + JSON.stringify(vtoken));
+app.delete("/file/:id", function(req, res) {
 
-      //FIND USER ID
-      db.use().collection('users').findOne( { email: vtoken.email}  , function(err, user) {
-        if (err) throw err;
-        else {
-          // FIND LIST OF FILES the user can delete
-          db.use().collection("fileslist").find({user : ObjectId(user._id)}).sort({_id:-1}).limit(100)
-            .toArray(function(err, entry) {
-              if (err) {
-                //handleError(res, err.message, "Failed to get list.");
-                res.status(503).json({"error":"database not in service"});
-              } else {
-                var result = entry.filter(obj => {
-                  return obj.file == req.params.id
-                });
-                console.log('result = ' + JSON.stringify(result));
-                //console.log('user = ' + user._id);
-                if (result === [] || !result[0]){
-                  res.status(203).send({"error":"you don't have rights with result"});
-                }
+  async function deleteFile(req, res) {
+    console.log('@@@Operation = delete  ' + req.params.id);
+    try {
 
-                else {
-                  if (result[0].user = user._id){
-                    db.use().collection('files').deleteOne({_id: ObjectId(req.params.id)}, function(err, result) {
-                        if (err) {
-                          res.status(503).json({"error":"database not in service"});
-                        } else {
-                          db.use().collection('fileslist').deleteMany({file: ObjectId(req.params.id)}, function(err, list) {
-                            if (err) {
-                              res.status(503).json({"error":"database not in service"});
-                            } else {
-                              res.status(203).send(list);
-                            }
-                          });
-                        }
-                    });
-                  }
-                  else {
-                    res.status(403).send({"error":"you don't have rights"});
-                  }
+      //verify token
+      if (req.headers.authorization) {
+        var vtoken = jwt.verify(req.headers.authorization.slice(7, req.headers.authorization.length).trimLeft());
 
-                }
-              }
-          });
+        if(vtoken === false){
+          res.status(200).json({error : 'bad credentials'});
         }
-      });
+        else {
 
-    }
+          // Requests for user file list
+          let user = await db.use().collection('users').findOne( { email: vtoken.email}  );
+          let listUSer = await db.use().collection("fileslist").find({user : ObjectId(user._id)})
+            .sort({_id:-1}).limit(100).toArray()
 
+          // search file in user file list
+          var result = listUSer.filter(obj => {
+              return obj.file == req.params.id
+            });
 
+          // check the file is on user list ==> future for different rights
+          if (result[0].user = user._id){
+            let deleteDB = await db.use().collection('files').deleteOne({_id: ObjectId(req.params.id)});
+            let deleteList = await db.use().collection('fileslist').deleteMany({file: ObjectId(req.params.id)});
 
-  /*  db.use().collection('files').deleteOne({_id: ObjectId(req.params.id)}, function(err, result) {
-      if (err) {
-        res.status(503).json({"error":"database not in service"});
-      } else {
-        res.status(204).send({"sucess":"file deleted"});
-      }
-    });*/
-  });
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //list file for a user
-  app.get("/list", function(req, res) {
-
-
-    if (req.headers.authorization) {
-      let token = req.headers.authorization;
-      token = token.slice(7, token.length).trimLeft();
-
-      var vtoken = jwt.verify(token);
-      //console.log('verif token lastentries = ' + JSON.stringify(vtoken));
-      //console.log('verif decode token lastentries = ' + JSON.stringify(jwt.decode(token)));
-
-      if(vtoken === false){
-        res.status(200).json({error : 'bad credentials'});
-      }
-
-      else {
-        db.use().collection('users').findOne( { email: vtoken.email}  , function(err, user) {
-          if (err) throw err;
+            res.status(200).send(deleteList);
+          }
           else {
-
-
-            db.use().collection("fileslist").find({user : ObjectId(user._id)}).sort({_id:-1}).limit(100)
-              .toArray(function(err, entry) {
-                if (err) {
-                  //handleError(res, err.message, "Failed to get list.");
-                  res.status(503).json({"error":"database not in service"});
-                } else {
-
-                  var obj_ids = entry.map((obj) => { return obj.file ; });
-                  //res.status(200).json(obj_ids);
-
-                  db.use().collection("files").find( {  _id: {$in: obj_ids } } ).toArray(function(err, list) {
-                    if (err) {
-                      res.status(503).json({"error":"database not in service"});
-                    } else {
-                      res.status(200).json(list);
-                    }
-                  });// db file
-
-                }
-            }); // db fileslist
+            res.status(203).send({"error":"you don't have rights with result"});
           }
 
-        }); // db user
 
-
-
+        }
       }
+      else {
+        res.status(200).json({error : 'no credentials'});
+      }
+    } catch (e) {
+        console.error(e);
+        res.status(200).send({error : "something went wrong !"});
+    }
 
-    } // if auth
+  }
+
+  deleteFile(req, res);
+
+});
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //list files for a user
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  app.get("/list", function(req, res) {
+
+  async function getData(req, res) {
+
+    try {
+      //verify token
+      if (req.headers.authorization) {
+        var vtoken = jwt.verify(req.headers.authorization.slice(7, req.headers.authorization.length).trimLeft());
+
+        if(vtoken === false){
+          res.status(200).json({error : 'bad credentials'});
+        }
+        else {
+
+          // 4 DB requests
+          let user = await db.use().collection('users').findOne( { email: vtoken.email} );
+          let listUser = await db.use().collection("fileslist").find({user : ObjectId(user._id)}).sort({_id:-1})
+            .limit(100).toArray();
+          // map file ids from the file list
+          var obj_ids = listUser.map((obj) => { return obj.file ; });
+          let files = await db.use().collection("files").find( {  _id: {$in: obj_ids } } ).toArray();
+          console.log(files);
+          res.status(200).send(files);
+        }
+      }
+      else {
+        res.status(200).json({error : 'no credentials'});
+      }
+    } catch (e) {
+        console.error(e);
+        res.status(200).send({error : "something went wrong !"});
+    }
+
+  }
+
+  getData(req, res);
 
 
   }); // app.get
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   //delete a list entry
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   app.delete("/list/:id", function(req, res) {
     db.use().collection('fileslist').deleteOne({_id: ObjectId(req.params.id)}, function(err, result) {
       if (err) {
