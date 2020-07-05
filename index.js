@@ -9,7 +9,7 @@ const jwt = require('express-jwt');
 var argon2i = require('argon2-ffi').argon2i;
 var crypto = require('crypto');
 var jwtp = require('./functions/jwt_func');
-
+const pify = require('pify');
 
 
 //var upload = multer({ dest: './uploads/' })
@@ -94,7 +94,7 @@ app.post('/file', /*upload.single('file')*/ function (req, res) {
                 if (err) {
                   handleError(res, err.message, "Failed to create new file step 1.");
                 } else {
-                  
+
                   let addFileToUser = {};
                   addFileToUser.file = doc.ops[0]._id;
                   addFileToUser.user = doc.ops[0].owner;

@@ -1,6 +1,10 @@
 var db = require( './../functions/mongoUtil' ); // db connection module
 const ObjectId = db.obj(); // ObjectID
+const multer  = require('multer');
+var fs = require('fs');
 var jwt = require('./../functions/jwt_func');
+var uReq = require('./../functions/usefulReq');
+const pify = require('pify');
 
 module.exports = function(app) {
 
@@ -52,23 +56,60 @@ module.exports = function(app) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // PUT Quote
-  
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   app.put("/file/:id", function(req, res) {
     var updateDoc = req.body;
     delete updateDoc._id;
-    db.use().collection('files').updateOne({_id: new ObjectId(req.params.id)}, {$set: updateDoc}, function(err, doc) {
-      if (err) {
-        res.status(503).json({"error":"database not in service"});
+
+    async function updateFile(req, res) {
+      console.log('@@@Operation = PUT FILE  ' + req.params.id);
+      try {
+
+        //verify token
+        if (req.headers.authorization) {
+          var vtoken = jwt.verify(req.headers.authorization.slice(7, req.headers.authorization.length).trimLeft());
+
+          if(vtoken === false){
+            res.status(200).json({error : 'bad credentials'});
+          }
+          else {
+
+            // Requests for user file list
+            let user = await uReq.getUserByEmail(vtoken.email);
+            let listUser = await uReq.getUserFileList(user);
+
+            // search file in user file list
+            var result = listUser.filter(obj => {
+                return obj.file == req.params.id
+              });
+
+            // check the file is on user list ==> future for different rights
+            if (result[0].user = user._id){
+              let updateDB = await db.use().collection('files').updateOne({_id: new ObjectId(req.params.id)}, {$set: updateDoc});
+
+              res.status(200).send(updateDB);
+            }
+            else {
+              res.status(203).send({"error":"you don't have rights with result"});
+            }
+
+
+          }
+        }
+        else {
+          res.status(200).json({error : 'no credentials'});
+        }
+      } catch (e) {
+          console.error(e);
+          res.status(200).send({error : "something went wrong !"});
       }
-      else if (doc !== null) {
-        res.status(200).json(doc);
-      }
-      else{
-        res.status(400).json({"error":"This ID does not exist"});
-      }
-    });
+    }
+
+  updateFile(req, res);
+
   });
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +120,7 @@ module.exports = function(app) {
 app.delete("/file/:id", function(req, res) {
 
   async function deleteFile(req, res) {
-    console.log('@@@Operation = delete  ' + req.params.id);
+    console.log('@@@Operation = DELETE FILE  ' + req.params.id);
     try {
 
       //verify token
@@ -136,10 +177,10 @@ app.delete("/file/:id", function(req, res) {
   //list files for a user
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  app.get("/list", function(req, res) {
+  app.get("/files", function(req, res) {
 
   async function getData(req, res) {
-
+    console.log('@@@Operation = GET FILE  ' + req.params.id);
     try {
       //verify token
       if (req.headers.authorization) {
@@ -150,14 +191,15 @@ app.delete("/file/:id", function(req, res) {
         }
         else {
 
-          // 4 DB requests
-          let user = await db.use().collection('users').findOne( { email: vtoken.email} );
-          let listUser = await db.use().collection("fileslist").find({user : ObjectId(user._id)}).sort({_id:-1})
-            .limit(100).toArray();
+          // 3 DB requests
+          let user = await uReq.getUserByEmail(vtoken.email);
+          let listUser = await uReq.getUserFileList(user);
+          //let listUser = await db.use().collection("fileslist").find({user : ObjectId(user._id)}).sort({_id:-1})
+          //  .limit(100).toArray();
           // map file ids from the file list
           var obj_ids = listUser.map((obj) => { return obj.file ; });
           let files = await db.use().collection("files").find( {  _id: {$in: obj_ids } } ).toArray();
-          console.log(files);
+          //console.log(files);
           res.status(200).send(files);
         }
       }
@@ -175,6 +217,78 @@ app.delete("/file/:id", function(req, res) {
 
 
   }); // app.get
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//POST File
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+app.post('/file2', /*upload.single('file')*/ function async (req, res) {
+
+
+  async function createFile(req, res) {
+    console.log('@@@Operation = CREATE FILE  ' + req.params.id);
+
+    try {
+
+      //verify token
+      if (req.headers.authorization) {
+        var vtoken = jwt.verify(req.headers.authorization.slice(7, req.headers.authorization.length).trimLeft());
+
+        if(vtoken === false){
+          res.status(200).json({error : 'bad credentials'});
+        }
+        else {
+          // user folder
+          let user = await uReq.getUserByEmail(vtoken.email);
+          console.log(JSON.stringify(user));
+          if (!fs.existsSync('./uploads/' +  user._id)){
+              fs.mkdirSync('./uploads/' +  user._id);
+          }
+          //upload in folder
+          var upload = multer({ dest: './uploads/' +  user._id });
+          upload.array('file')(req,res,function(err) {
+
+            ////// add file to DB
+             createDBFile = async (req, res) => {
+              try {
+                //// collection files
+                let newFile = await db.use().collection('files').insertOne(req.files[0]) ;
+                let addFileToUser = {
+                  file: newFile.ops[0]._id,
+                  user: user._id,
+                  rigths: 'creator'
+                }
+                //// collection fileslist
+                let newFileInTheList = await db.use().collection('fileslist').insertOne(addFileToUser);
+                res.status(200).send(newFileInTheList);
+              } catch (e) {
+                res.status(200).send('error, failed to add file');
+              }
+            }
+            createDBFile(req, res);
+            });
+          }
+
+      }
+      else {
+        res.status(200).json({error : 'no credentials'});
+      }
+    } catch (e) {
+        console.error(e);
+        res.status(200).send({error : "something went wrong !"});
+    }
+  }
+
+  createFile(req, res);
+
+});
+
+
+
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

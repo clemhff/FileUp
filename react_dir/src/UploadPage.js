@@ -30,7 +30,7 @@ class UploadPage extends Component {
       let lToken = localStorage.mkt;
       console.log(lToken);
 
-      fetch(process.env.REACT_APP_API_URL + '/list' ,
+      fetch(process.env.REACT_APP_API_URL + '/files' ,
       {
         method: 'GET',
         headers: {
@@ -143,7 +143,8 @@ class UploadPage extends Component {
           method: 'PUT',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.mkt
           },
           body: JSON.stringify(obj)
         })
@@ -179,7 +180,14 @@ class UploadPage extends Component {
   }
 
   deleteAFile(i, id) {
-    fetch('http://localhost:8090/file/' + id , {method: "DELETE"})
+    fetch('http://localhost:8090/file/' + id , {
+      method: "DELETE",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.mkt
+      }
+    })
     .then(response => response.text())
     .then(res => {
       const listFiles = this.state.dataListFiles.slice();
