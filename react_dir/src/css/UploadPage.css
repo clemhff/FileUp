@@ -1,0 +1,32 @@
+.cardf {
+  margin-top: 25px;
+}
+.cardu {
+  margin-top: 25px;
+}
+
+.form-button-add {
+  margin-top: 0px;
+}
+
+.form-button-choose{
+  margin-top: 10px;
+  margin-right: 25px;
+}
+
+.form-button-upload {
+  margin-top: 10px;
+}
+
+.form-add {
+  margin-top: 10px;
+}
+
+.list-delete {
+  margin-top: 10px;
+  margin-right: 20px;
+}
+
+.list-modify {
+  margin-top: 10px;
+}

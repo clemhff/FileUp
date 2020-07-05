@@ -223,7 +223,7 @@ app.delete("/file/:id", function(req, res) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.post('/file2', /*upload.single('file')*/ function async (req, res) {
+app.post('/file', /*upload.single('file')*/ function async (req, res) {
 
 
   async function createFile(req, res) {
@@ -261,7 +261,7 @@ app.post('/file2', /*upload.single('file')*/ function async (req, res) {
                 }
                 //// collection fileslist
                 let newFileInTheList = await db.use().collection('fileslist').insertOne(addFileToUser);
-                res.status(200).send(newFileInTheList);
+                res.status(200).send(newFile);
               } catch (e) {
                 res.status(200).send('error, failed to add file');
               }

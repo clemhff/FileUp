@@ -118,14 +118,30 @@ class Login extends Component {
       if(this.state.type ==='login') {
         return(
           <div>
-            <form onSubmit={(e) => this.onSubmit(e)}>
-              <label for="user">Email</label>
-              <input id="user" type="text" onChange={(e) => this.onChange(e, 0)} />
-              <label for="password">Password</label>
-              <input id="password" type="text" onChange={(e) => this.onChange(e, 1)} />
-              <button type="submit">Log In</button>
-              <button onClick={() => this.signUpButton()} >Sign up</button>
-            </form>
+            <div className="title_div">
+              <div className="container">
+                <div className="row">
+                  <div className="col-12">
+                    <div className="card cardl">
+                      <div className="card-body">
+                        <form onSubmit={(e) => this.onSubmit(e)}>
+                          <div>
+                            <label class="label-log" for="user">Email</label>
+                            <input id="user" type="text" onChange={(e) => this.onChange(e, 0)} />
+                          </div>
+                          <div>
+                            <label class="label-log" for="password">Password</label>
+                            <input id="password" type="text" onChange={(e) => this.onChange(e, 1)} />
+                          </div>
+                          <button class="btn btn-dark log-button" type="submit">Log In</button>
+                          <button class="btn btn-success signup-button" onClick={() => this.signUpButton()} >Sign up</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         );
       }

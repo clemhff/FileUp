@@ -57,7 +57,7 @@ RESTFiles (app);
 sign(app);
 
 
-app.post('/file', /*upload.single('file')*/ function (req, res) {
+/*app.post('/file', *//*upload.single('file')*/ /*function (req, res) {
 
   console.log('headers are' + JSON.stringify(req.headers));
   if (req.headers.authorization){
@@ -108,12 +108,12 @@ app.post('/file', /*upload.single('file')*/ function (req, res) {
                       res.status(201).json(doc.ops[0]);
                     }
                   });
-                  /*delete newUser.owner;
+                  *//*delete newUser.owner;
                   delete newUser.viewer;
                   delete newUser._id;
                   delete newUser.createdDate;*/
 
-                }
+                /*}
               });
 
             });
@@ -127,7 +127,7 @@ app.post('/file', /*upload.single('file')*/ function (req, res) {
   }
 
 
-});
+});*/
 
 app.get('/download/:id', function (req, res) {
   fs.readFile(__dirname + '/uploads/' + req.params.id, function (err,data) {

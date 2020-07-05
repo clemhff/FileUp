@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
-//import './css/AddQuote.css';
+import './css/UploadPage.css';
 
 
 import UploadForm from './UploadForm';
@@ -88,9 +88,10 @@ class UploadPage extends Component {
         //console.log(res)
         this.setState({uploadPercentage: 100 }, ()=>{
         setTimeout(() => {
-            console.log('first is' + JSON.stringify(myFile));
-            myFile.unshift(res.data);
-            console.log('second is' +  JSON.stringify(myFile));
+            //console.log('first is' + JSON.stringify(myFile));
+            res.data.ops[0].fileCardState ='ok';
+            myFile.unshift(res.data.ops[0]);
+            //console.log('second is' +  JSON.stringify(myFile));
 
             this.setState({ dataListFiles : myFile, addFile:false, uploadPercentage: null });
           }, 1000);
@@ -233,14 +234,22 @@ class UploadPage extends Component {
 
     return (
       <div>
-        <UploadForm
-          uploadPercentage ={this.state.uploadPercentage}
-          addFile = {this.state.addFile}
-          onFormSubmit = {(e) => this.onFormSubmit(e)}
-          onChange = {(e) => this.onChange(e)}
-          addAFile = {(id) => this.addAFile(id)}
-        />
-        {divFiles}
+        <div className="title_div">
+          <div className="container">
+            <div className="row">
+              <div className="col-12">
+                <UploadForm
+                  uploadPercentage ={this.state.uploadPercentage}
+                  addFile = {this.state.addFile}
+                  onFormSubmit = {(e) => this.onFormSubmit(e)}
+                  onChange = {(e) => this.onChange(e)}
+                  addAFile = {(id) => this.addAFile(id)}
+                />
+                {divFiles}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
