@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+import { Redirect } from "react-router-dom";
 import './css/UploadPage.css';
 
 
@@ -20,13 +21,15 @@ class UploadPage extends Component {
       addFile:false,
       dataListFiles: [],
       formState: false,
-      formInput: []
+      formInput: [],
+      auth : true
     }
   }
 
   //API call
   componentDidMount() {
 
+    if (localStorage.mkt){
       let lToken = localStorage.mkt;
       console.log(lToken);
 
@@ -57,8 +60,12 @@ class UploadPage extends Component {
           }
         })
         .then(data => this.setState({ dataListFiles : data }))
-      ;
-   }
+        ;
+    }
+    else {
+      this.setState({ auth : false })
+    }
+  }
 
   onFormSubmit(e){
     e.preventDefault() // Stop form submit
@@ -231,25 +238,38 @@ class UploadPage extends Component {
 
     })
 
-
-    return (
-      <div>
-        <div className="title_div">
-          <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <UploadForm
-                  uploadPercentage ={this.state.uploadPercentage}
-                  addFile = {this.state.addFile}
-                  onFormSubmit = {(e) => this.onFormSubmit(e)}
-                  onChange = {(e) => this.onChange(e)}
-                  addAFile = {(id) => this.addAFile(id)}
-                />
-                {divFiles}
+    let htmlPage = () => {
+      if (this.state.auth === false) {
+        return <Redirect to="/login" /> ;
+      }
+      else {
+        return (
+          <div>
+            <div className="title_div">
+              <div className="container">
+                <div className="row">
+                  <div className="col-12">
+                    <UploadForm
+                      uploadPercentage ={this.state.uploadPercentage}
+                      addFile = {this.state.addFile}
+                      onFormSubmit = {(e) => this.onFormSubmit(e)}
+                      onChange = {(e) => this.onChange(e)}
+                      addAFile = {(id) => this.addAFile(id)}
+                    />
+                    {divFiles}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        );
+      }
+    }
+
+
+    return (
+      <div>
+        {htmlPage()}
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
+import { Redirect } from "react-router-dom";
 
-//import './css/AddQuote.css';
 
 
 import SignUp from './SignUp';
@@ -18,7 +18,8 @@ class Login extends Component {
       email:null,
       password: null,
       userName: null,
-      type : 'login'
+      type : 'login',
+      redirect: false
     }
   }
 
@@ -51,13 +52,14 @@ class Login extends Component {
       if(res.auth === 'Correct password!'){
         console.log("well done");
         localStorage.setItem("mkt", res.token);
+        setTimeout(() => {this.setState({ redirect: true});}, 100);
       }
     }
     );
   }
 
 
-  onSignIn(e) {
+  onSignUp(e) {
     e.preventDefault();
 
     let data = {
@@ -79,6 +81,7 @@ class Login extends Component {
     .then(response => response.json())
     .then(res => {
       console.log(res);
+      this.setState({ type: 'login'});
     }
     );
   }
@@ -115,7 +118,10 @@ class Login extends Component {
   render () {
 
     let choose = () => {
-      if(this.state.type ==='login') {
+      if (this.state.redirect) {
+            return <Redirect to="/" /> ;
+        }
+      else if (this.state.type ==='login') {
         return(
           <div>
             <div className="title_div">
@@ -150,7 +156,7 @@ class Login extends Component {
         return(
             <SignUp
               onChange = {(e, i) => this.onChange(e, i)}
-              onSubmit = {(e) => this.onSignIn(e)}
+              onSubmit = {(e) => this.onSignUp(e)}
             />
         );
       }

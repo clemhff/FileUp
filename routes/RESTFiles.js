@@ -180,7 +180,7 @@ app.delete("/file/:id", function(req, res) {
   app.get("/files", function(req, res) {
 
   async function getData(req, res) {
-    console.log('@@@Operation = GET FILE  ' + req.params.id);
+    console.log('@@@Operation = GET FILES  ');
     try {
       //verify token
       if (req.headers.authorization) {
