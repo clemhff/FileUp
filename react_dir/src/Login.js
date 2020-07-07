@@ -137,7 +137,7 @@ class Login extends Component {
                           </div>
                           <div>
                             <label class="label-log" for="password">Password</label>
-                            <input id="password" type="text" onChange={(e) => this.onChange(e, 1)} />
+                            <input id="password" type="password" onChange={(e) => this.onChange(e, 1)} />
                           </div>
                           <button class="btn btn-dark log-button" type="submit">Log In</button>
                           <button class="btn btn-success signup-button" onClick={() => this.signUpButton()} >Sign up</button>

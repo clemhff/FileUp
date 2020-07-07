@@ -135,7 +135,9 @@ app.delete("/file/:id", function(req, res) {
           // Requests for user file list
           let user = await db.use().collection('users').findOne( { email: vtoken.email}  );
           let listUSer = await db.use().collection("fileslist").find({user : ObjectId(user._id)})
-            .sort({_id:-1}).limit(100).toArray()
+            .sort({_id:-1}).limit(100).toArray();
+          let file = await db.use().collection("files").findOne( {  _id: ObjectId(req.params.id) } );
+          console.log('file is ' + JSON.stringify(file));
 
           // search file in user file list
           var result = listUSer.filter(obj => {
@@ -147,7 +149,9 @@ app.delete("/file/:id", function(req, res) {
             let deleteDB = await db.use().collection('files').deleteOne({_id: ObjectId(req.params.id)});
             let deleteList = await db.use().collection('fileslist').deleteMany({file: ObjectId(req.params.id)});
 
-            res.status(200).send(deleteList);
+            fs.unlinkSync('./uploads/' +  user._id + '/' + file.filename);
+
+            res.status(200).send(file);
           }
           else {
             res.status(203).send({"error":"you don't have rights with result"});
@@ -252,6 +256,8 @@ app.post('/file', /*upload.single('file')*/ function async (req, res) {
             ////// add file to DB
              createDBFile = async (req, res) => {
               try {
+                req.files[0].owner = user._id;
+                req.files[0].createdAt = new Date().toISOString();
                 //// collection files
                 let newFile = await db.use().collection('files').insertOne(req.files[0]) ;
                 let addFileToUser = {
