@@ -129,7 +129,7 @@ sign(app);
 
 });*/
 
-app.get('/download/:id', function (req, res) {
+/*app.get('/download/:id', function (req, res) {
   fs.readFile(__dirname + '/uploads/' + req.params.id, function (err,data) {
     if (err) {
       res.writeHead(404);
@@ -139,7 +139,7 @@ app.get('/download/:id', function (req, res) {
     res.writeHead(200);
     res.end(data);
   });
-});
+});*/
 
 app.get(env.appRootUrl + '*', function(req, res) {
     console.log(path.join(__dirname, '/react_dir/build/index.html'));

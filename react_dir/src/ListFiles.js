@@ -21,6 +21,10 @@ function ListFiles(props) {
                 class="btn btn-warning list-modify"
                 onClick={() => props.updateAFile(props.num)}
               >Modify</button>
+              <a
+                class="btn btn-warning list-modify"
+                onClick={(e) => props.onDownload(e, props.num)}
+              >Download </a>
           </div>
         </div>
       </div>

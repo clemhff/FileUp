@@ -137,7 +137,7 @@ app.delete("/file/:id", function(req, res) {
           let listUSer = await db.use().collection("fileslist").find({user : ObjectId(user._id)})
             .sort({_id:-1}).limit(100).toArray();
           let file = await db.use().collection("files").findOne( {  _id: ObjectId(req.params.id) } );
-          console.log('file is ' + JSON.stringify(file));
+          //console.log('file is ' + JSON.stringify(file));
 
           // search file in user file list
           var result = listUSer.filter(obj => {
@@ -290,8 +290,53 @@ app.post('/file', /*upload.single('file')*/ function async (req, res) {
 
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// download File
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+app.get('/download/:id', function (req, res) {
+
+  async function downloadFile(req, res) {
+    console.log('@@@Operation = DOWNLOAD FILE  ' + req.params.id);
+    try {
+      if (req.headers.authorization) {
+        var vtoken = jwt.verify(req.headers.authorization.slice(7, req.headers.authorization.length).trimLeft());
+
+        if(vtoken === false){
+          res.status(200).json({error : 'bad credentials'});
+        }
+        else {
+          let user = await uReq.getUserByEmail(vtoken.email);
+          let listUser = await uReq.getUserFileList(user);
+          let file = await db.use().collection("files").findOne( {  _id: ObjectId(req.params.id) } );
+          console.log('user is ' + JSON.stringify(file));
+
+          res.download('./uploads/' + user._id + '/' + file.filename, req.params.id);
 
 
+
+        }
+      }
+      else {
+        res.status(200).json({error : 'no credentials'});
+      }
+    } catch (e) {
+        console.error(e);
+        res.status(200).send({error : "something went wrong !"});
+    }
+  }
+
+  downloadFile(req, res);
+
+
+
+
+
+
+
+
+});
 
 
 

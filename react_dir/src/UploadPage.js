@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import { Redirect } from "react-router-dom";
+import download from 'downloadjs';
 import './css/UploadPage.css';
 
 
@@ -218,6 +219,22 @@ class UploadPage extends Component {
     this.setState({ dataListFiles : listFiles, addFile:false});
   }
 
+  async onDownload (e, i) {
+    const listFiles = this.state.dataListFiles.slice();
+    console.log('id file ' + listFiles[i]._id);
+    const res = await fetch("http://localhost:8090/download/" + listFiles[i]._id, {
+      method: "GET",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.mkt
+      }
+    });
+    const blob = await res.blob();
+    download(blob, listFiles[i]._id );
+  }
+
+
 
   render () {
 
@@ -233,6 +250,7 @@ class UploadPage extends Component {
             onModifyChange = {(i, e) => this.onModifyChange(i, e)}
             onModifyValid = {(i) => this.onModifyValid(i)}
             onModifyCancel = {(i) => this.onModifyCancel(i)}
+            onDownload = {(e, i) => this.onDownload(e, i)}
            />
          );
 
