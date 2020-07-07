@@ -312,7 +312,7 @@ app.get('/download/:id', function (req, res) {
           let file = await db.use().collection("files").findOne( {  _id: ObjectId(req.params.id) } );
           console.log('user is ' + JSON.stringify(file));
 
-          res.download('./uploads/' + user._id + '/' + file.filename, req.params.id);
+          res.download('./uploads/' + user._id + '/' + file.filename, file.originalname);
 
 
 

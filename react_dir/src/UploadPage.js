@@ -231,7 +231,7 @@ class UploadPage extends Component {
       }
     });
     const blob = await res.blob();
-    download(blob, listFiles[i]._id );
+    download(blob, listFiles[i].originalname);
   }
 
 
