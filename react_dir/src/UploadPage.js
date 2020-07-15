@@ -46,7 +46,14 @@ class UploadPage extends Component {
         .then(response => response.json())
         .then(data => {
           console.log(data);
-          if (data.error ) { // if credentials are bad
+          // bad credential
+          if (data.error === 'bad credentials' ) {
+            data = [];
+            localStorage.removeItem('mkt');
+            this.setState({ auth : false })
+            return data;
+          }
+          else if (data.error) { // if something went wrong
             data = [];
             localStorage.removeItem('mkt');
             return data;
@@ -92,7 +99,7 @@ class UploadPage extends Component {
       }
     }
 
-    axios.post("http://localhost:8090/file", data, options).then(res => {
+    axios.post(process.env.REACT_APP_API_URL + '/file' , data, options).then(res => {
         //console.log(res)
         this.setState({uploadPercentage: 100 }, ()=>{
         setTimeout(() => {
@@ -148,7 +155,7 @@ class UploadPage extends Component {
             'filename' : temp[i].filename
           }
 
-        fetch('http://localhost:8090/file/' + temp[i]["_id"] , {
+        fetch(process.env.REACT_APP_API_URL + '/file/'  + temp[i]["_id"] , {
           method: 'PUT',
           headers: {
             'Accept': 'application/json',
@@ -189,7 +196,7 @@ class UploadPage extends Component {
   }
 
   deleteAFile(i, id) {
-    fetch('http://localhost:8090/file/' + id , {
+    fetch(process.env.REACT_APP_API_URL + '/file/' + id , {
       method: "DELETE",
       headers: {
         'Accept': 'application/json',
@@ -222,7 +229,7 @@ class UploadPage extends Component {
   async onDownload (e, i) {
     const listFiles = this.state.dataListFiles.slice();
     console.log('id file ' + listFiles[i]._id);
-    const res = await fetch("http://localhost:8090/download/" + listFiles[i]._id, {
+    const res = await fetch(process.env.REACT_APP_API_URL + '/download/' + listFiles[i]._id, {
       method: "GET",
       headers: {
         'Accept': 'application/json',
@@ -231,7 +238,8 @@ class UploadPage extends Component {
       }
     });
     const blob = await res.blob();
-    download(blob, listFiles[i].originalname);
+    var objectURL = URL.createObjectURL(blob);
+    download(objectURL, listFiles[i].originalname);
   }
 
 
@@ -245,6 +253,7 @@ class UploadPage extends Component {
             key={index}
             num = {index}
             data = {this.state.dataListFiles[index]}
+            url = {process.env.REACT_APP_API_URL + '/download/'}
             deleteAFile = {(i, id) => this.deleteAFile(i, id)}
             updateAFile = {(i) => this.updateAFile(i)}
             onModifyChange = {(i, e) => this.onModifyChange(i, e)}

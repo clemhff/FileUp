@@ -28,8 +28,8 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.use(bodyParser.json({limit: '50000000mb'}));
-app.use(bodyParser.urlencoded({limit: '500000000mb', extended: true}));
+app.use(bodyParser.json({limit: '200mb'}));
+app.use(bodyParser.urlencoded({limit: '200mb', extended: true}));
 
 app.use(env.appRootUrl + '/public', express.static(__dirname + '/react_dir/build/public'));
 app.use(env.appRootUrl + '/static', express.static(__dirname + '/react_dir/build/static')); // put an environnement variable for '/reactdev'

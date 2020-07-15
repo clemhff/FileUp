@@ -21,10 +21,10 @@ function ListFiles(props) {
                 class="btn btn-warning list-modify"
                 onClick={() => props.updateAFile(props.num)}
               >Modify</button>
-              <a
-                class="btn btn-warning list-modify"
+              <button
+                class="btn btn-primary list-modify"
                 onClick={(e) => props.onDownload(e, props.num)}
-              >Download </a>
+              >Download </button>
           </div>
         </div>
       </div>
@@ -54,6 +54,7 @@ function ListFiles(props) {
               >Confirm</button>
               <button
                 class="btn btn-danger list-modify"
+                src = {props.url + props.data._id}
                 onClick={() => props.onModifyCancel(props.num)}
               >Cancel</button>
           </div>

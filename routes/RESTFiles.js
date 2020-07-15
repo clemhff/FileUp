@@ -5,6 +5,7 @@ var fs = require('fs');
 var jwt = require('./../functions/jwt_func');
 var uReq = require('./../functions/usefulReq');
 const pify = require('pify');
+const env = require('./../config/env');
 
 module.exports = function(app) {
 
@@ -13,7 +14,7 @@ module.exports = function(app) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  app.get("/lastentries", function(req, res) {
+  app.get(env.appRootUrl + "/lastentries", function(req, res) {
 
     if (req.headers.authorization) {
       var vtoken = jwt.verify(req.headers.authorization.slice(7, req.headers.authorization.length).trimLeft());
@@ -39,7 +40,7 @@ module.exports = function(app) {
   // GET File
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  app.get("/file/:id", function(req, res) {
+  app.get(env.appRootUrl + "/file/:id", function(req, res) {
     db.use().collection('files').findOne({ _id: ObjectId(req.params.id) }, function(err, doc) {
       if (err) {
         res.status(503).json({"error":"database not in service"});
@@ -58,7 +59,7 @@ module.exports = function(app) {
   // PUT Quote
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  app.put("/file/:id", function(req, res) {
+  app.put(env.appRootUrl + "/file/:id", function(req, res) {
     var updateDoc = req.body;
     delete updateDoc._id;
 
@@ -117,7 +118,7 @@ module.exports = function(app) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.delete("/file/:id", function(req, res) {
+app.delete(env.appRootUrl + "/file/:id", function(req, res) {
 
   async function deleteFile(req, res) {
     console.log('@@@Operation = DELETE FILE  ' + req.params.id);
@@ -181,7 +182,7 @@ app.delete("/file/:id", function(req, res) {
   //list files for a user
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  app.get("/files", function(req, res) {
+  app.get(env.appRootUrl + "/files", function(req, res) {
 
   async function getData(req, res) {
     console.log('@@@Operation = GET FILES  ');
@@ -227,7 +228,7 @@ app.delete("/file/:id", function(req, res) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.post('/file', /*upload.single('file')*/ function async (req, res) {
+app.post(env.appRootUrl + '/file', /*upload.single('file')*/ function async (req, res) {
 
 
   async function createFile(req, res) {
@@ -295,7 +296,7 @@ app.post('/file', /*upload.single('file')*/ function async (req, res) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.get('/download/:id', function (req, res) {
+app.get(env.appRootUrl + '/download/:id', function (req, res) {
 
   async function downloadFile(req, res) {
     console.log('@@@Operation = DOWNLOAD FILE  ' + req.params.id);
@@ -346,7 +347,7 @@ app.get('/download/:id', function (req, res) {
    //delete a list entry
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  app.delete("/list/:id", function(req, res) {
+  app.delete(env.appRootUrl + "/list/:id", function(req, res) {
     db.use().collection('fileslist').deleteOne({_id: ObjectId(req.params.id)}, function(err, result) {
       if (err) {
         res.status(503).json({"error":"database not in service"});

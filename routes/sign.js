@@ -1,6 +1,7 @@
 var argon2i = require('argon2-ffi').argon2i;
 var crypto = require('crypto');
 var jwt = require('./../functions/jwt_func');
+const env = require('./../config/env');
 
 //const argon = require( './../functions/argon' );
 var db = require( './../functions/mongoUtil' ); // db connection module
@@ -8,7 +9,7 @@ const ObjectId = db.obj(); // ObjectID
 
 module.exports = function(app) {
 
-  app.post("/signup", function(req, res) {
+  app.post(env.appRootUrl + "/signup", function(req, res) {
     var body = req.body;
     var newUser = {} ;
     newUser.userName = body.userName;
@@ -43,7 +44,7 @@ module.exports = function(app) {
 
 
 
-    app.post("/signin", function(req, res) {
+    app.post(env.appRootUrl + "/signin", function(req, res) {
       //console.log(JSON.stringify(req.body));
       db.use().collection('users').find( { email: req.body.email } ).toArray(function(err, result) {
         if (err) throw err;

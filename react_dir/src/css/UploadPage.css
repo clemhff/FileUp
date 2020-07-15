@@ -29,4 +29,10 @@
 
 .list-modify {
   margin-top: 10px;
+  margin-right: 20px;
+  color: white;
+}
+
+.list-modify:hover {
+  color: white;
 }
